@@ -1,0 +1,12 @@
+{
+  "event": "pane_agent_status_changed",
+  "data": {
+    "type": "pane_agent_status_changed",
+    "workspace_id": "w1",
+    "pane_id": "w1:p2",
+    "agent": "claude",
+    "display_agent": "Claude Code",
+    "title": "Implement login API",
+    "agent_status": "done"
+  }
+}

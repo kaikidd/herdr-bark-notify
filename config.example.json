@@ -1,0 +1,26 @@
+{
+  "bark_url": "https://api.day.app/YOUR_BARK_KEY",
+  "enabled": true,
+  "locale": "zh-CN",
+  "timeout_ms": 5000,
+  "retries": 1,
+  "notification": {
+    "title": "{emoji} {agent} · {status_label}",
+    "subtitle": "{workspace} / {pane}",
+    "body": "{message}\nAgent: {agent_id}\nPane: {pane_id}",
+    "group": "herdr-{agent_id}"
+  },
+  "statuses": {
+    "done": { "enabled": true },
+    "blocked": { "enabled": true, "notification": { "sound": "alarm" } }
+  },
+  "agents": {
+    "claude": { "name": "Claude Code", "notification": { "sound": "minuet" } },
+    "codex": {
+      "name": "Codex",
+      "notification": { "sound": "bell" },
+      "statuses": { "blocked": { "notification": { "sound": "alarm" } } }
+    },
+    "gemini": { "name": "Gemini", "notification": { "sound": "calypso" } }
+  }
+}

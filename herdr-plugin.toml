@@ -1,0 +1,30 @@
+id = "herdr.bark-notify"
+name = "Bark Notify"
+version = "1.0.0"
+min_herdr_version = "0.9.0"
+description = "Bilingual Bark notifications for completed and blocked agents, with workspace and pane context."
+platforms = ["linux", "macos", "windows"]
+
+[[events]]
+on = "pane.agent_status_changed"
+command = ["node", "notify.mjs"]
+
+[[actions]]
+id = "check"
+title = "Check Bark configuration / 检查 Bark 配置"
+command = ["node", "notify.mjs", "check"]
+
+[[actions]]
+id = "preview"
+title = "Preview Bark notification / 预览 Bark 通知"
+command = ["node", "notify.mjs", "preview"]
+
+[[actions]]
+id = "test-done"
+title = "Send Bark completion test / 发送完成测试通知"
+command = ["node", "notify.mjs", "test", "--status", "done"]
+
+[[actions]]
+id = "test-blocked"
+title = "Send Bark blocked test / 发送待处理测试通知"
+command = ["node", "notify.mjs", "test", "--status", "blocked"]

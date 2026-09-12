@@ -1,0 +1,67 @@
+# Validation / 验证记录
+
+## Environment / 环境
+
+- Date / 日期：2026-09-13 (Asia/Shanghai).
+- macOS, Node.js `v24.20.0`, Herdr `0.9.0`, protocol `22`.
+- No runtime npm dependencies / 无运行时 npm 依赖。
+
+## Automated checks / 自动化检查
+
+```sh
+npm run check
+npm test
+```
+
+25 tests pass. Coverage includes real HTTP requests to local mock servers and child-process execution of the plugin, not just mocked function calls.
+
+25 项测试通过。包含向本地模拟服务发起真实 HTTP 请求，以及通过子进程运行插件入口，覆盖：
+
+- Configuration defaults, type validation, secret-safe errors, environment overrides, `/push` and key-in-path endpoints.
+- 配置默认值、类型校验、错误脱敏、环境变量覆盖、两种 Bark 端点。
+- Chinese/English notifications, custom names, status filters, override precedence, independent panes, and foreign-focus protection.
+- 中英文文案、自定义名称、状态过滤、覆盖顺序、不同 Pane 区分、焦点不一致处理。
+- Herdr's snake_case plugin event JSON and dotted subscription/environment names.
+- Herdr 插件 JSON 中的下划线事件名，以及订阅/环境变量中的点号事件名。
+- User-assigned pane label lookup through an explicit ID; original event status and agent remain authoritative.
+- 按明确 ID 查询手动 Pane 标签，仍以原事件的 Agent 和状态为准。
+- UTF-8 payload limits, template substitution, HTTP and Bark application-level errors, retries, deadlines covering response bodies, and redirect refusal.
+- UTF-8 长度限制、模板替换、HTTP 与 Bark 业务错误、重试、覆盖响应正文的超时、拒绝重定向。
+- Config initialization without overwriting, command-line preview/check/test, and automatic event delivery.
+- 配置初始化且不覆盖已有文件、预览/检查/测试命令、自动事件发送。
+
+## Real Herdr integration / 真实 Herdr 集成
+
+```sh
+python3 scripts/verify_herdr.py
+```
+
+The smoke test passed against the installed Herdr 0.9.0 binary. It uses fresh `XDG_CONFIG_HOME`, `XDG_STATE_HOME`, `HERDR_CONFIG_PATH`, and `HERDR_SOCKET_PATH` values, an isolated headless server, and a loopback-only HTTP mock.
+
+本机 Herdr 0.9.0 集成测试通过。通过临时配置与状态目录、单独 API socket、隔离的无界面服务和仅监听本机的 HTTP 模拟服务进行验证，没有修改日常 Herdr 插件注册，也没有向真实 Bark 服务推送。
+
+Verified / 已验证：
+
+1. Herdr accepts `herdr-plugin.toml`, links the checkout, lists the plugin and all four actions.
+   Herdr 接受清单、本地加载成功，并列出插件和四个动作。
+2. `check` and `preview` actions finish with exit code `0` and make no push requests.
+   检查和预览动作以 `0` 退出，不发推送请求。
+3. Both test actions send correctly labeled requests to the local mock.
+   两个测试动作向本地模拟服务发送带测试标识的请求。
+4. A background test pane reports `working → blocked → working → idle` through the real socket API. Herdr generates `blocked` and unseen `done` notifications; working events exit without sending.
+   后台测试 Pane 通过真实 socket API 上报状态；Herdr 产生待处理及未查看的完成事件，工作中事件不发送通知。
+5. Both automatic notifications contain the expected Agent, workspace label, and manually assigned pane label.
+   两类自动通知都含有正确 Agent、工作区名称和手动设置的 Pane 标签。
+6. Plugin logs report success. The test server and temporary files are cleaned up.
+   插件日志显示成功，测试服务和临时文件已清理。
+
+## Limits / 验证边界
+
+- Real iPhone/APNs delivery was **not** tested: no user Bark key was supplied. Configure your key and run the documented test action to complete device verification.
+- **未测试真实 iPhone/APNs 收件**：没有使用用户 Bark 密钥，配置后需执行测试动作确认手机收件。
+- The Herdr smoke test reports synthetic agent states through the official API; it does not launch Claude Code, Codex, or Gemini to test their own terminal detection/integrations.
+- Herdr 集成测试通过官方 API 模拟上报 Agent 状态，没有启动真实 Claude Code、Codex 或 Gemini 来验证各自的终端检测/集成。
+- Linux, Windows and Node 22 are covered by the committed CI matrix, but no remote CI result is claimed here. The optional Python smoke test uses Unix sockets and is for macOS/Linux only.
+- 已编写 Linux、Windows、Node 22 的 CI 矩阵，本记录不声称远端 CI 已运行。可选 Python 集成脚本使用 Unix socket，仅适用于 macOS/Linux。
+- No repository was published or pushed to GitHub, and the plugin was not permanently enabled in the normal Herdr profile.
+- 没有发布或推送 GitHub 仓库，没有将插件永久启用到日常 Herdr 配置。

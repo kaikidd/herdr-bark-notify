@@ -1,0 +1,14 @@
+{
+  "name": "herdr-bark-notify",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bilingual, dependency-free Bark notification plugin for Herdr",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test",
+    "test:coverage": "node --test --experimental-test-coverage",
+    "check": "node --check notify.mjs && node --check src/config.mjs && node --check src/message.mjs && node --check src/bark.mjs && node --check src/herdr.mjs",
+    "preview": "node notify.mjs preview"
+  }
+}

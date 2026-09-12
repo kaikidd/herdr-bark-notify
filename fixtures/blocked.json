@@ -1,0 +1,12 @@
+{
+  "event": "pane_agent_status_changed",
+  "data": {
+    "type": "pane_agent_status_changed",
+    "workspace_id": "w2",
+    "pane_id": "w2:p3",
+    "agent": "codex",
+    "display_agent": "Codex",
+    "title": "Fix database migration",
+    "agent_status": "blocked"
+  }
+}
