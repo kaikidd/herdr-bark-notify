@@ -116,6 +116,12 @@ herdr plugin config-dir herdr.bark-notify
 
 插件注册和启用状态对当前用户的 Herdr 会话全局生效，没有运行中的服务时也可加载。已有服务通常无需重启即可识别注册变化；如果在服务启动后才安装 Node，服务继承的旧 `PATH` 可能需要刷新。
 
+## 默认方形头像
+
+1.1.0 自动为 Herdr 0.9.0 的 **23 种 Agent 中的 19 种**附带 LobeHub 方形头像；没有独立 CLI 头像时采用对应品牌头像。OMP、Droid、Maki、Muse 保留 Bark 默认图标，无需新增配置。详见[完整覆盖清单、来源及覆盖方法](docs/AVATARS.md)。
+
+设置 `"notification": { "icon": null }` 可关闭默认头像；已有自定义 `icon` 优先。源图片为 LobeHub 的 640×640 PNG 品牌图标，与 WebP Avatar 包的背景样式有所不同；由于 WebP 头像在真机测试中未显示，默认改用 PNG。最终通知头像的裁切形状由 iOS 决定。
+
 ## 配置项详解
 
 只需填写 Bark 地址即可使用，默认通知语言为 **`zh-CN`**，设置 `"locale": "en"` 可改为英文。完整扩展示例见 [config.example.json](config.example.json)。
@@ -143,7 +149,7 @@ herdr plugin config-dir herdr.bark-notify
 | `body` | `{message}\nAgent: {agent_id}\nPane: {pane_id}`；渲染后的正文必须含非空白内容。 |
 | `group` | `herdr-{agent_id}`，按 Agent 在 Bark 中分组。 |
 | `sound` | 默认不指定，由 Bark 决定。可设置 Bark 铃声名，例如 `bell`、`minuet`、`calypso`、`alarm`。 |
-| `icon` | 可选，自定义图标 URL，由 Bark 获取。 |
+| `icon` | 默认使用匹配的 LobeHub 方形头像（若有），可用 URL 覆盖，或设为 `null` 关闭。 |
 | `url` | 可选，点击通知跳转的 URL。本插件不假设 Herdr 存在手机端深链接。 |
 | `level` | 可选：`active`、`passive`、`timeSensitive`、`critical`，实际效果取决于 Bark 和 iOS 权限。 |
 | `badge` | 可选，整数，0–99999。 |
@@ -206,7 +212,7 @@ herdr plugin config-dir herdr.bark-notify
 }
 ```
 
-Agent 配置键精确匹配且区分大小写。内置显示名称识别 `claude`、`claude-code`、`claude_code`、`codex`、`gemini`，但这些别名**不会合并配置项**。设置 `agents` 键时，以实际通知正文中的 `Agent:` 值为准。若想保留 Herdr 自定义的 `display_agent`，不要设置 `agents.<id>.name`。
+Agent 配置键精确匹配且区分大小写。内置显示名称覆盖 Herdr 0.9.0 的全部 23 种 Agent，[头像/名称别名](docs/AVATARS.md) **不会合并用户配置项**。设置 `agents` 键时，以实际通知正文中的 `Agent:` 值为准。若想保留 Herdr 自定义的 `display_agent`，不要设置 `agents.<id>.name`。
 
 ### 自建 Bark 和环境变量
 
@@ -278,6 +284,7 @@ herdr-plugin.toml       插件注册、事件钩子、动作
 notify.mjs             命令行及事件入口
 src/config.mjs         配置读取、初始化与校验
 src/message.mjs        身份解析、中英文文案、模板
+src/agents.mjs         Herdr Agent 名称与默认方形头像地址
 src/bark.mjs           HTTP 发送、超时与重试
 src/herdr.mjs          缺失 Pane 标签的只读查询
 config.example.json    扩展配置示例

@@ -1,9 +1,9 @@
 import { isObject, UserError } from './config.mjs';
+import { agentDefaults } from './agents.mjs';
 
 export const EVENT = 'pane.agent_status_changed';
 const text = (...values) => values.find(value => typeof value === 'string' && value.trim())?.trim() ?? '';
 const own = (value, key) => Object.hasOwn(value ?? {}, key) ? value[key] : undefined;
-const names = { claude: 'Claude Code', 'claude-code': 'Claude Code', claude_code: 'Claude Code', codex: 'Codex', gemini: 'Gemini' };
 const messages = {
   'zh-CN': { done: ['完成', '任务完成，等待查看。'], blocked: ['需要处理', 'Agent 正在等待你的输入或确认。'], workspace: '未命名工作区', pane: '未命名窗格' },
   en: { done: ['Done', 'Task complete. Ready for your review.'], blocked: ['Needs attention', 'The agent is waiting for your input or approval.'], workspace: 'Unnamed workspace', pane: 'Unnamed pane' },
@@ -36,6 +36,7 @@ export function buildNotification(config, event, context = {}, env = {}, { force
   const sameWorkspace = Boolean(workspaceId && context.workspace_id === workspaceId);
   const samePane = Boolean(paneId && context.focused_pane_id === paneId);
   const agentId = text(data.agent, samePane && context.focused_pane_agent, 'unknown');
+  const defaults = agentDefaults(agentId);
   const agentConfig = own(config.agents, agentId) ?? {};
   const statusConfig = own(config.statuses, status) ?? {};
   const agentStatus = own(agentConfig.statuses, status) ?? {};
@@ -43,7 +44,7 @@ export function buildNotification(config, event, context = {}, env = {}, { force
   const locale = messages[config.locale];
   const displayAgent = text(data.display_agent);
   const variables = {
-    agent: text(agentConfig.name, displayAgent, own(names, agentId), agentId === 'unknown' ? 'Agent' : agentId),
+    agent: text(agentConfig.name, displayAgent, defaults?.name, agentId === 'unknown' ? 'Agent' : agentId),
     agent_id: agentId,
     display_agent: displayAgent,
     status,
@@ -62,6 +63,7 @@ export function buildNotification(config, event, context = {}, env = {}, { force
     subtitle: '{workspace} / {pane}',
     body: '{message}\nAgent: {agent_id}\nPane: {pane_id}',
     group: 'herdr-{agent_id}',
+    ...(defaults?.icon ? { icon: defaults.icon } : {}),
     ...config.notification,
     ...statusConfig.notification,
     ...agentConfig.notification,

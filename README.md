@@ -116,6 +116,12 @@ herdr plugin config-dir herdr.bark-notify
 
 Herdr plugin registration and enable state are shared across the current user's sessions. Linking is supported while no server is running. For a running server, registration changes apply without restarting it. If Node was installed after the server started, its inherited `PATH` may still need to be refreshed.
 
+## Default square avatars
+
+Version 1.1.0 automatically attaches LobeHub square avatars for **19 of the 23 Herdr 0.9.0 agent kinds**, including corresponding brand avatars where a dedicated CLI avatar is unavailable. OMP, Droid, Maki and Muse retain Bark’s default icon. No extra configuration is required. See the [complete coverage table, sources and overrides](docs/AVATARS.md).
+
+To disable default avatars, set `"notification": { "icon": null }`. Your existing custom `icon` takes precedence. The images are 640×640 PNG logos from LobeHub. They differ from the WebP Avatar package’s background styling; PNG is used because the WebP avatars failed device testing. The final notification mask is controlled by iOS.
+
 ## Configuration reference
 
 Only the Bark endpoint is required. The default notification language is **`zh-CN`**; set `"locale": "en"` for English. See [config.example.json](config.example.json) for an extended, copyable example.
@@ -143,7 +149,7 @@ Unknown options, unsupported template variables and invalid types are errors rat
 | `body` | `{message}\nAgent: {agent_id}\nPane: {pane_id}`; rendered body must contain visible text. |
 | `group` | `herdr-{agent_id}`; separates agents in Bark. |
 | `sound` | Omitted, letting Bark use its default. Set a Bark sound name, e.g. `bell`, `minuet`, `calypso`, `alarm`. |
-| `icon` | Optional icon URL fetched by Bark. |
+| `icon` | Defaults to the matching LobeHub square avatar when available. Override with a URL or disable with `null`. |
 | `url` | Optional URL opened when the notification is tapped. No Herdr mobile deep link is assumed. |
 | `level` | Optional: `active`, `passive`, `timeSensitive`, `critical`. Availability depends on Bark and iOS permissions. |
 | `badge` | Optional integer, 0–99999. |
@@ -206,7 +212,7 @@ For example, disable completion notifications globally, keep Codex completions, 
 }
 ```
 
-Agent keys are exact and case-sensitive. Built-in display names recognize `claude`, `claude-code`, `claude_code`, `codex` and `gemini`; these aliases do **not** merge configuration entries. Use the raw `Agent:` value from your notification when choosing an `agents` key. To preserve custom Herdr `display_agent` labels, omit `agents.<id>.name`.
+Agent keys are exact and case-sensitive. Built-in display names cover all 23 Herdr 0.9.0 kinds; [avatar/name aliases](docs/AVATARS.md) do **not** merge configuration entries. Use the raw `Agent:` value from your notification when choosing an `agents` key. To preserve custom Herdr `display_agent` labels, omit `agents.<id>.name`.
 
 ### Self-hosted Bark and environment variables
 
@@ -278,6 +284,7 @@ herdr-plugin.toml       Host registration, event hook, actions
 notify.mjs             CLI and event entrypoint
 src/config.mjs         Config loading, initialization, validation
 src/message.mjs        Identity resolution, localization, templates
+src/agents.mjs         Herdr agent names and default square avatar URLs
 src/bark.mjs           Bounded HTTP delivery and retries
 src/herdr.mjs          Read-only lookup for missing pane labels
 config.example.json    Extended configuration example

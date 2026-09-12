@@ -11,6 +11,7 @@ test('renders real Herdr event fields and matched context in both languages', as
   assert.deepEqual(zh, {
     title: '✓ Claude Code · 完成', subtitle: 'backend / Implement login API',
     body: '任务完成，等待查看。\nAgent: claude\nPane: w1:p2', group: 'herdr-claude',
+    icon: 'https://unpkg.com/@lobehub/icons-static-png@1.97.0/light/claudecode.png',
   });
   const en = buildNotification(normalizeConfig({ locale: 'en' }), sampleEvent('blocked')).payload;
   assert.equal(en.title, '⚠ Codex · Needs attention');

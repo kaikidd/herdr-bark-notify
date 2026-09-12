@@ -13,9 +13,9 @@ npm run check
 npm test
 ```
 
-25 tests pass. Coverage includes real HTTP requests to local mock servers and child-process execution of the plugin, not just mocked function calls.
+28 tests pass. Coverage includes real HTTP requests to local mock servers and child-process execution of the plugin, not just mocked function calls.
 
-25 项测试通过。包含向本地模拟服务发起真实 HTTP 请求，以及通过子进程运行插件入口，覆盖：
+28 项测试通过。包含向本地模拟服务发起真实 HTTP 请求，以及通过子进程运行插件入口，覆盖：
 
 - Configuration defaults, type validation, secret-safe errors, environment overrides, `/push` and key-in-path endpoints.
 - 配置默认值、类型校验、错误脱敏、环境变量覆盖、两种 Bark 端点。
@@ -57,11 +57,32 @@ Verified / 已验证：
 
 ## Limits / 验证边界
 
-- Real iPhone/APNs delivery was **not** tested: no user Bark key was supplied. Configure your key and run the documented test action to complete device verification.
-- **未测试真实 iPhone/APNs 收件**：没有使用用户 Bark 密钥，配置后需执行测试动作确认手机收件。
+- The initial implementation was tested only with a local mock. Subsequent authorized device tests used the existing user configuration; avatar results are recorded below.
+- 初始实现仅使用本地模拟服务测试。后续经授权使用用户已有配置进行了真机对照，头像结果见下文。
 - The Herdr smoke test reports synthetic agent states through the official API; it does not launch Claude Code, Codex, or Gemini to test their own terminal detection/integrations.
 - Herdr 集成测试通过官方 API 模拟上报 Agent 状态，没有启动真实 Claude Code、Codex 或 Gemini 来验证各自的终端检测/集成。
 - Linux, Windows and Node 22 are covered by the committed CI matrix, but no remote CI result is claimed here. The optional Python smoke test uses Unix sockets and is for macOS/Linux only.
 - 已编写 Linux、Windows、Node 22 的 CI 矩阵，本记录不声称远端 CI 已运行。可选 Python 集成脚本使用 Unix socket，仅适用于 macOS/Linux。
-- No repository was published or pushed to GitHub, and the plugin was not permanently enabled in the normal Herdr profile.
-- 没有发布或推送 GitHub 仓库，没有将插件永久启用到日常 Herdr 配置。
+- The isolated smoke test did not change the normal Herdr profile. During later avatar diagnosis, the user’s normal profile was confirmed to link this local checkout. No repository was published or pushed to GitHub.
+- 隔离集成测试没有修改日常 Herdr 配置；后续头像排查确认用户的日常配置已链接本地源码。没有发布或推送 GitHub 仓库。
+
+## Version 1.1.0 avatars / 1.1.0 头像
+
+Default avatars use LobeHub's 640×640 PNG logos. All 19 mapped CDN URLs returned HTTP 200 with valid PNG signatures and 640×640 dimensions. Three regression tests cover inventory coverage, aliases and override/disable behavior. See [AVATARS.md](AVATARS.md).
+
+默认头像使用 LobeHub 的 640×640 PNG 品牌图标。19 个 CDN 地址全部返回 HTTP 200，且文件签名和尺寸正确。三项回归测试验证覆盖清单、别名、覆盖和关闭行为；详见 [AVATARS.md](AVATARS.md)。
+
+Authorized device comparisons on 2026-09-13, with user-reported iOS 27 and Bark 1.6.3:
+
+2026-09-13 经授权发送对照通知，用户报告系统为 iOS 27、Bark 1.6.3：
+
+| Test / 测试 | Image / 图片 | User-observed avatar / 用户观察到的头像 |
+| --- | --- | --- |
+| A | Bark official example JPEG, `day.app` | Displayed / 已显示 |
+| B | Codex WebP, Avatar 1.14.0, UNPKG | Not displayed / 未显示 |
+| C | Codex PNG, PNG 1.97.0, UNPKG | Displayed / 已显示 |
+| D | Same Codex WebP as B, jsDelivr | Not displayed / 未显示 |
+
+All four requests were accepted by the configured Bark backend. The results support changing defaults to PNG; they do not identify the exact internal iOS/Bark failure or verify display for all 19 images. The tests did not change the user's saved configuration.
+
+四次请求均被配置中的 Bark 后端接受。结果支持将默认图片改为 PNG，但没有定位 iOS/Bark 内部具体失败点，也不代表 19 张图片均通过真机显示验证。测试没有修改用户保存的配置。
