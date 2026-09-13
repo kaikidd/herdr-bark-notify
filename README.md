@@ -171,7 +171,7 @@ String fields support the variables below, except `level`, which accepts only it
 | `{message}` | Localized default status sentence. |
 | `{workspace}` | Event workspace label if present → matching context label → workspace ID → localized fallback. |
 | `{workspace_id}` | Event workspace ID, with Herdr environment fallback. |
-| `{pane}` | Event `title` / `pane_title` → matching pane label/title from Herdr → pane ID → localized fallback. |
+| `{pane}` | Event `title` / `pane_title` → matching pane label, title or terminal title from Herdr → pane ID → localized fallback. |
 | `{pane_id}` | Event pane ID, with Herdr environment fallback. |
 | `{tab}` / `{tab_id}` | Event fields or matching focused-pane context; empty when unavailable. |
 
