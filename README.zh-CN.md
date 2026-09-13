@@ -152,11 +152,34 @@ herdr plugin config-dir herdr.bark-notify
 | `icon` | 默认使用匹配的 LobeHub 方形头像（若有），可用 URL 覆盖，或设为 `null` 关闭。 |
 | `url` | 可选，点击通知跳转的 URL。本插件不假设 Herdr 存在手机端深链接。 |
 | `level` | 可选：`active`、`passive`、`timeSensitive`、`critical`，实际效果取决于 Bark 和 iOS 权限。 |
+| `call` | 1.2.0 起支持：`"1"` 或 `1` 重复响铃约 30 秒；`"0"` 或 `0` 关闭重复。默认不设置。 |
+| `volume` | 1.2.0 起支持：0–10 的数字，可用小数，仅控制 `critical` 重要警告音量。默认不设置（Bark 使用 5）；`0` 表示零音量。 |
 | `badge` | 可选，整数，0–99999。 |
 | `isArchive` | 可选，`0` 或 `1`。不设置时遵循 Bark App 设置。 |
 | `copy` | 可选，从通知复制时使用的文本。 |
 
-除 `level` 只能使用固定枚举值外，字符串字段均支持下方模板变量。用 `null` 或空字符串 `""` 可以移除继承的可选字段；不要移除或清空 `body`。插件只开放上述 Bark API 字段，不会直接透传任意额外 JSON。
+除 `level`、`call` 只能使用规定值外，字符串字段均支持下方模板变量。用 `null` 可以移除继承的任意可选字段；空字符串 `""` 还可移除可选文本字段，但不能用于 `level`、`call` 或数字字段；不要移除或清空 `body`。插件只开放上述 Bark API 字段，不会直接透传任意额外 JSON。
+
+### 重复响铃与重要警告音量（1.2.0）
+
+将以下片段合并到已有 `config.json`，即可为两类通知启用约 30 秒响铃，音量设为 5：
+
+```json
+{
+  "notification": {
+    "level": "critical",
+    "call": "1",
+    "sound": "alarm",
+    "volume": 5
+  }
+}
+```
+
+如果只想让待处理通知这样提醒，将这四个字段放进 `statuses.blocked.notification`。也可在 `agents.<id>.notification` 或 `agents.<id>.statuses.blocked.notification` 下设置，遵循原有覆盖优先级。请合并已有字段，保留地址、密钥及其他设置；保存后下次插件运行即读取新配置。
+
+`volume` 使用 JSON 数字，`"2"` 这样的字符串会被拒绝。`call` 支持字符串或数字形式的 0/1，不接受布尔值及模板变量。发送时插件将两者转为字符串，以匹配 Bark 通知扩展的读取方式。在更高优先级配置中设置 `call: "0"` 可关闭继承的重复响铃；`call: null`、`volume: null` 则移除继承字段。音量设置不控制普通 `active` 通知。升级不会自动启用重要警告、重复响铃或指定默认音量。扩展示例中的 `call: "0"` 表示不重复，`volume: 5` 仅在你同时选择 `critical` 后生效。
+
+Bark 的 `call` 将铃声延长到约 30 秒，不会无限响铃直到点开通知。`critical` 的效果取决于 Bark 的“重要警告”权限；插件没有增加定时重发或确认服务。参见 [Bark 参数文档](https://github.com/Finb/Bark/blob/master/docs/tutorial.md)、[重复响铃实现](https://github.com/Finb/Bark/blob/master/NotificationServiceExtension/Processor/CallProcessor.swift)和[重要警告音量处理](https://github.com/Finb/Bark/blob/master/NotificationServiceExtension/Processor/LevelProcessor.swift)。
 
 ### 模板变量
 

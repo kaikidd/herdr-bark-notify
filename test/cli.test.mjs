@@ -30,13 +30,15 @@ test('CLI initializes once, validates without sending and previews explicit fixt
   await run(['init', '--config', file, '--locale', 'en']);
   assert.equal(JSON.parse(await readFile(file, 'utf8')).locale, 'en');
   await assert.rejects(run(['init', '--config', file]), /not overwritten/);
-  await writeFile(file, JSON.stringify({ bark_url: 'https://api.day.app/private', locale: 'en' }));
+  await writeFile(file, JSON.stringify({ bark_url: 'https://api.day.app/private', locale: 'en', notification: { call: '1', volume: 2 } }));
   const check = await run(['check', '--config', file]);
   assert.match(check.stdout, /Configuration valid/);
   assert.ok(!check.stdout.includes('private'));
   const fixture = fileURLToPath(new URL('../fixtures/blocked.json', import.meta.url));
   const preview = await run(['preview', '--config', file, '--event', fixture]);
   assert.equal(JSON.parse(preview.stdout).subtitle, 'w2 / Fix database migration');
+  assert.equal(JSON.parse(preview.stdout).call, '1');
+  assert.equal(JSON.parse(preview.stdout).volume, '2');
 });
 
 test('event entrypoint posts to a local Bark mock with real env contract; tests bypass switches', async t => {
@@ -52,7 +54,10 @@ test('event entrypoint posts to a local Bark mock with real env contract; tests 
   t.after(() => new Promise(resolve => { server.closeAllConnections(); server.close(resolve); }));
   const dir = await mkdtemp(path.join(tmpdir(), 'bark-event-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
-  const config = { bark_url: `http://127.0.0.1:${server.address().port}/key` };
+  const config = {
+    bark_url: `http://127.0.0.1:${server.address().port}/key`,
+    statuses: { blocked: { notification: { level: 'critical', call: 1, sound: 'alarm', volume: 2 } } },
+  };
   const file = path.join(dir, 'config.json');
   await writeFile(file, JSON.stringify(config));
   const event = sampleEvent();
@@ -61,6 +66,8 @@ test('event entrypoint posts to a local Bark mock with real env contract; tests 
   const result = await run([], env);
   assert.match(result.stdout, /notification sent/);
   assert.match(received[0].subtitle, /Real project/);
+  assert.ok(!Object.hasOwn(received[0], 'call'));
+  assert.ok(!Object.hasOwn(received[0], 'volume'));
   await writeFile(file, JSON.stringify({ ...config, enabled: false }));
   await run([], env);
   assert.equal(received.length, 1);
@@ -68,4 +75,8 @@ test('event entrypoint posts to a local Bark mock with real env contract; tests 
   assert.equal(received.length, 2);
   assert.match(received[1].title, /^\[TEST \/ 测试\]/);
   assert.match(received[1].title, /需要处理/);
+  assert.equal(received[1].level, 'critical');
+  assert.equal(received[1].call, '1');
+  assert.equal(received[1].sound, 'alarm');
+  assert.equal(received[1].volume, '2');
 });

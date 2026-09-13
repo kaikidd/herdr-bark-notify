@@ -6,7 +6,7 @@ export const VARIABLES = new Set([
   'agent', 'agent_id', 'display_agent', 'status', 'status_label', 'emoji',
   'workspace', 'workspace_id', 'tab', 'tab_id', 'pane', 'pane_id', 'message',
 ]);
-const FIELDS = new Set(['title', 'subtitle', 'body', 'group', 'sound', 'icon', 'url', 'level', 'badge', 'isArchive', 'copy']);
+const FIELDS = new Set(['title', 'subtitle', 'body', 'group', 'sound', 'icon', 'url', 'level', 'call', 'volume', 'badge', 'isArchive', 'copy']);
 const ROOT = new Set(['bark_url', 'device_key', 'enabled', 'locale', 'statuses', 'notification', 'agents', 'timeout_ms', 'retries']);
 export const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
@@ -36,7 +36,11 @@ function notification(value, label) {
     if (val === null) continue; // Remove an inherited optional field.
     if (key === 'badge') integer(val, 0, 99999, `${label}.badge`);
     else if (key === 'isArchive') integer(val, 0, 1, `${label}.isArchive`);
-    else if (key === 'level') {
+    else if (key === 'call') {
+      if (![0, 1, '0', '1'].includes(val)) throw new UserError(`${label}.call must be 0, 1, "0" or "1" / 必须为 0 或 1`);
+    } else if (key === 'volume') {
+      if (typeof val !== 'number' || !Number.isFinite(val) || val < 0 || val > 10) throw new UserError(`${label}.volume must be a number in 0..10 / 必须为 0 到 10 的数字`);
+    } else if (key === 'level') {
       if (!['active', 'passive', 'timeSensitive', 'critical'].includes(val)) throw new UserError(`${label}.level is invalid`);
     } else validateTemplate(val, `${label}.${key}`);
   }

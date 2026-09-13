@@ -76,6 +76,29 @@ test('global switch, per-status switch, per-agent override, explicit test bypass
   assert.ok(buildNotification(normalizeConfig({ enabled: false }), sampleEvent(), {}, {}, { force: true }));
 });
 
+test('call and volume preserve overrides, zero and removal with Bark string encoding', () => {
+  const raw = {
+    notification: { call: 1, volume: 5 },
+    statuses: { blocked: { notification: { level: 'critical', call: '1', volume: 2 } } },
+    agents: { codex: { notification: { volume: 2.5 }, statuses: { blocked: { notification: { call: 0, volume: 0 } } } } },
+  };
+  const render = (config, status) => buildNotification(normalizeConfig(config), sampleEvent(status)).payload;
+  const blocked = render(raw, 'blocked');
+  assert.equal(blocked.level, 'critical');
+  assert.equal(blocked.call, '0');
+  assert.equal(blocked.volume, '0');
+  const done = render(raw, 'done');
+  assert.equal(done.call, '1');
+  assert.equal(done.volume, '2.5');
+  raw.agents.codex.statuses.blocked.notification = { call: null, volume: null };
+  const removed = render(raw, 'blocked');
+  assert.ok(!Object.hasOwn(removed, 'call'));
+  assert.ok(!Object.hasOwn(removed, 'volume'));
+  const defaults = render({}, 'done');
+  assert.ok(!Object.hasOwn(defaults, 'call'));
+  assert.ok(!Object.hasOwn(defaults, 'volume'));
+});
+
 test('templates substitute once, preserve UTF-8, and bound the APNs payload', () => {
   const event = sampleEvent();
   event.data.title = '{agent_id}';

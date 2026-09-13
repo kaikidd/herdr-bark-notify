@@ -152,11 +152,34 @@ Unknown options, unsupported template variables and invalid types are errors rat
 | `icon` | Defaults to the matching LobeHub square avatar when available. Override with a URL or disable with `null`. |
 | `url` | Optional URL opened when the notification is tapped. No Herdr mobile deep link is assumed. |
 | `level` | Optional: `active`, `passive`, `timeSensitive`, `critical`. Availability depends on Bark and iOS permissions. |
+| `call` | Since 1.2.0: `"1"` or `1` repeats the ringtone for about 30 seconds; `"0"` or `0` disables repetition. Omitted by default. |
+| `volume` | Since 1.2.0: number from 0 to 10, including decimals; controls `critical` alert volume only. Omitted by default (Bark uses 5); `0` is zero volume. |
 | `badge` | Optional integer, 0–99999. |
 | `isArchive` | Optional `0` or `1`. Omitted means Bark app settings decide. |
 | `copy` | Optional text to copy from the notification. |
 
-String fields support the variables below, except `level`, which accepts only its listed values. Use `null` or `""` to remove an inherited optional field. Do not remove or empty `body`. This plugin intentionally exposes a subset of Bark's API; arbitrary extra JSON fields are not forwarded.
+String fields support the variables below, except `level` and `call`, which accept only their listed values. Use `null` to remove any inherited optional field; `""` also removes optional text fields, but is not accepted for `level`, `call` or numeric fields. Do not remove or empty `body`. This plugin intentionally exposes a subset of Bark's API; arbitrary extra JSON fields are not forwarded.
+
+### Repeated ringing and critical volume (1.2.0)
+
+Merge this fragment into your existing `config.json` to enable about 30 seconds of ringing at volume 5 for both notification statuses:
+
+```json
+{
+  "notification": {
+    "level": "critical",
+    "call": "1",
+    "sound": "alarm",
+    "volume": 5
+  }
+}
+```
+
+For blocked notifications only, place these four fields under `statuses.blocked.notification` instead. The same fields work under `agents.<id>.notification` and `agents.<id>.statuses.blocked.notification`; normal override precedence applies. Merge with existing fields rather than replacing your endpoint, key or other settings. The next plugin invocation reads the saved configuration.
+
+`volume` is a JSON number; quoted numbers such as `"2"` are rejected. `call` accepts `0`/`1` as strings or numbers, not booleans or templates. Both are sent as strings because Bark's notification extension reads strings. A higher-priority `call: "0"` disables inherited repetition; `call: null` and `volume: null` omit the inherited fields. Volume is not a control for ordinary `active` notifications. No new default volume, critical level or repeated ringing is enabled by upgrading. The extended example sets `call: "0"` and `volume: 5`; that volume takes effect only if you also select `critical`.
+
+Bark's `call` creates an approximately 30-second ringtone; it does not ring indefinitely until you open the notification. `critical` behavior depends on the app's Critical Alerts permission. The plugin does not add a reminder loop or an acknowledgement service. See [Bark parameters](https://github.com/Finb/Bark/blob/master/docs/tutorial.md), [ringtone implementation](https://github.com/Finb/Bark/blob/master/NotificationServiceExtension/Processor/CallProcessor.swift) and [critical volume handling](https://github.com/Finb/Bark/blob/master/NotificationServiceExtension/Processor/LevelProcessor.swift).
 
 ### Template variables
 

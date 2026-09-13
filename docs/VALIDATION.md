@@ -13,9 +13,9 @@ npm run check
 npm test
 ```
 
-28 tests pass. Coverage includes real HTTP requests to local mock servers and child-process execution of the plugin, not just mocked function calls.
+30 tests pass. Coverage includes real HTTP requests to local mock servers and child-process execution of the plugin, not just mocked function calls.
 
-28 项测试通过。包含向本地模拟服务发起真实 HTTP 请求，以及通过子进程运行插件入口，覆盖：
+30 项测试通过。包含向本地模拟服务发起真实 HTTP 请求，以及通过子进程运行插件入口，覆盖：
 
 - Configuration defaults, type validation, secret-safe errors, environment overrides, `/push` and key-in-path endpoints.
 - 配置默认值、类型校验、错误脱敏、环境变量覆盖、两种 Bark 端点。
@@ -86,3 +86,13 @@ Authorized device comparisons on 2026-09-13, with user-reported iOS 27 and Bark 
 All four requests were accepted by the configured Bark backend. The results support changing defaults to PNG; they do not identify the exact internal iOS/Bark failure or verify display for all 19 images. The tests did not change the user's saved configuration.
 
 四次请求均被配置中的 Bark 后端接受。结果支持将默认图片改为 PNG，但没有定位 iOS/Bark 内部具体失败点，也不代表 19 张图片均通过真机显示验证。测试没有修改用户保存的配置。
+
+## Version 1.2.0 call and volume / 1.2.0 重复响铃与音量
+
+Configuration tests cover valid values, invalid types and ranges, and all four notification override locations. Rendering tests verify zero volume, repetition off, fractional volume, omission, inheritance and removal. CLI tests read a real temporary config, validate and preview it, then send a critical repeated-ring notification to a local HTTP mock and verify `call` and `volume` arrive as strings. No real phone notification is sent by these automated tests.
+
+配置测试覆盖合法值、错误类型和范围，以及四种通知配置位置。渲染测试验证零音量、关闭重复、小数音量、默认省略、继承和移除。CLI 测试读取真实临时配置，执行检查及预览，并向本地 HTTP 模拟服务发送重要警告，核实 `call` 和 `volume` 均以字符串送达。自动化测试不向真实手机发送通知。
+
+Earlier manually requested critical/call tests at volumes 2 and 5 were accepted by the configured backend. No measured sound level or guaranteed ringing duration is claimed from those responses.
+
+此前按用户要求发送的音量 2、5 的重要警告与重复响铃测试均被配置中的后端接受；不能仅凭成功响应认定实际音量或响铃时长已测量验证。

@@ -72,7 +72,9 @@ export function buildNotification(config, event, context = {}, env = {}, { force
   const payload = {};
   for (const [key, value] of Object.entries(options)) {
     if (value === null || value === '') continue;
-    payload[key] = typeof value === 'string' ? value.replace(/\{([^{}]+)\}/g, (_, name) => variables[name] ?? '') : value;
+    // Bark's notification extension reads call and volume as strings.
+    payload[key] = key === 'call' || key === 'volume' ? String(value)
+      : typeof value === 'string' ? value.replace(/\{([^{}]+)\}/g, (_, name) => variables[name] ?? '') : value;
   }
   if (!payload.body?.trim()) throw new UserError('Rendered notification body is empty / 通知正文不能为空');
   // Leave room for APNs envelope; never truncate a UTF-8 character.

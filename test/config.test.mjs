@@ -21,6 +21,25 @@ test('supports JSON /push and a self-hosted reverse-proxy prefix', () => {
   assert.throws(() => normalizeConfig({ bark_url: 'https://api.day.app/key', device_key: 'key' }), /\/push/);
 });
 
+test('validates call and volume at every notification configuration layer', () => {
+  const layers = [
+    notification => ({ notification }),
+    notification => ({ statuses: { blocked: { notification } } }),
+    notification => ({ agents: { codex: { notification } } }),
+    notification => ({ agents: { codex: { statuses: { blocked: { notification } } } } }),
+  ];
+  for (const wrap of layers) {
+    for (const call of [0, 1, '0', '1', null]) assert.doesNotThrow(() => normalizeConfig(wrap({ call })));
+    for (const volume of [0, 2, 2.5, 5, 10, null]) assert.doesNotThrow(() => normalizeConfig(wrap({ volume })));
+    for (const call of [true, false, 2, -1, 0.5, '', 'true', '{agent_id}', [], {}]) {
+      assert.throws(() => normalizeConfig(wrap({ call })), /\.call/);
+    }
+    for (const volume of [-1, 11, '2', '', true, false, NaN, Infinity, [], {}]) {
+      assert.throws(() => normalizeConfig(wrap({ volume })), /\.volume/);
+    }
+  }
+});
+
 test('rejects malformed settings, dangerous URL shapes and misspelled template variables', () => {
   for (const raw of [null, [], { locale: 'fr' }, { enabled: 'false' }, { retries: -1 }, { timeout_ms: 30000 },
     { secretTypo: 'secret' }, { statuses: { working: {} } }, { statuses: { done: { enabled: 0 } } },

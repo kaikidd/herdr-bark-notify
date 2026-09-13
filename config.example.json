@@ -8,7 +8,9 @@
     "title": "{emoji} {agent} · {status_label}",
     "subtitle": "{workspace} / {pane}",
     "body": "{message}\nAgent: {agent_id}\nPane: {pane_id}",
-    "group": "herdr-{agent_id}"
+    "group": "herdr-{agent_id}",
+    "call": "0",
+    "volume": 5
   },
   "statuses": {
     "done": { "enabled": true },
