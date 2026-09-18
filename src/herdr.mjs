@@ -14,7 +14,7 @@ export async function enrichPaneTitle(event, env, execImpl = exec) {
     });
     const pane = JSON.parse(stdout)?.result?.pane;
     if (pane?.pane_id !== data.pane_id || pane.workspace_id !== data.workspace_id) return event;
-    const title = [pane.label, pane.title].find(value => typeof value === 'string' && value.trim());
+    const title = [pane.label, pane.title, pane.terminal_title_stripped, pane.terminal_title].find(value => typeof value === 'string' && value.trim());
     if (title) return { ...event, data: { ...data, pane_title: title } };
   } catch {
     // Closed panes, unavailable servers and older hosts still get ID-based notifications.

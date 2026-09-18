@@ -194,7 +194,7 @@ Bark 的 `call` 将铃声延长到约 30 秒，不会无限响铃直到点开通
 | `{message}` | 对应语言和状态的默认说明句。 |
 | `{workspace}` | 事件工作区名称（若有）→ ID 匹配的上下文名称 → 工作区 ID → 对应语言的兜底文本。 |
 | `{workspace_id}` | 事件中的工作区 ID，缺失时回退到 Herdr 环境变量。 |
-| `{pane}` | 事件 `title` / `pane_title` → 向 Herdr 查询且 ID 匹配的 Pane 标签/标题 → Pane ID → 对应语言的兜底文本。 |
+| `{pane}` | 事件 `title` / `pane_title` → 向 Herdr 查询且 ID 匹配的 Pane 标签、标题或终端标题 → Pane ID → 对应语言的兜底文本。 |
 | `{pane_id}` | 事件中的 Pane ID，缺失时回退到 Herdr 环境变量。 |
 | `{tab}` / `{tab_id}` | 事件字段或 Pane ID 匹配的焦点上下文字段，缺失时为空。 |
 
